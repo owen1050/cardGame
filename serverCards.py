@@ -11,23 +11,25 @@ class server(BaseHTTPRequestHandler):
 
 
     def do_GET(self):
+        global playersList
         content_len = int(self.headers.get('Content-Length'))
         print(content_len)
-        post_body = self.rfile.read(content_len)
-        body = str(post_body)
+        post_body = str(self.rfile.read(content_len))
+        body = post_body[2:]
         print(body)
         replyString = ""
         try:
-            if(post_body[0:11] == "~newPlayer:"):
-                i0 = 12
-                i1 = post_body.find(":", i0)
-
-                newPlayerName = post_body[i0, i1]
-
-                playerList.append[newPlayerName]
+            
+            if(body[0:11] == "~newPlayer:"):
+                i0 = 11
+                i1 = body.find(":", i0)
+                print(i0, i1)
+                newPlayerName = body[i0:i1]
+                print(newPlayerName)
+                
                 outString = "New player:" + newPlayerName
                 print(outString)
-                if(replyString == "")
+                if(replyString == ""):
                     replyString = outString
                 else:
                     replyString = replyString + ":" + outString
