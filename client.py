@@ -2,7 +2,7 @@ import requests
 
 url = 'http://100.35.205.75:23659'
 
-payload = "helloapp"
+payload = "~newPlayer:owen:"
 headers = {'Content-Length':str(len(payload))}
 
 

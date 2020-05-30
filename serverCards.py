@@ -15,7 +15,8 @@ class server(BaseHTTPRequestHandler):
         print(content_len)
         post_body = self.rfile.read(content_len)
         body = str(post_body)
-
+        print(body)
+        replyString = ""
         try:
             if(post_body[0:11] == "~newPlayer:"):
                 i0 = 12
@@ -24,12 +25,18 @@ class server(BaseHTTPRequestHandler):
                 newPlayerName = post_body[i0, i1]
 
                 playerList.append[newPlayerName]
-                print("New player:" + newPlayerName)
+                outString = "New player:" + newPlayerName
+                print(outString)
+                if(replyString == "")
+                    replyString = outString
+                else:
+                    replyString = replyString + ":" + outString
         except:
             print("error in new player")
 
 
-        replyString = "getReply"
+        if(replyString == ""):
+            replyString = "Error, no match"
 
         self.send_response(200)
         self.send_header('Content-type','text/html')
