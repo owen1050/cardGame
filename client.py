@@ -7,3 +7,4 @@ headers = {'Content-Length':str(len(payload))}
 
 
 r = requests.get(url, data = payload, headers = headers)
+print(r.text)

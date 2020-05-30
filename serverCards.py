@@ -14,7 +14,20 @@ class server(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('Content-Length'))
         print(content_len)
         post_body = self.rfile.read(content_len)
-        print(str(post_body))
+        body = str(post_body)
+
+        try:
+            if(post_body[0:11] == "~newPlayer:"):
+                i0 = 12
+                i1 = post_body.find(":", i0)
+
+                newPlayerName = post_body[i0, i1]
+
+                playerList.append[newPlayerName]
+                print("New player:" + newPlayerName)
+        except:
+            print("error in new player")
+
 
         replyString = "getReply"
 
