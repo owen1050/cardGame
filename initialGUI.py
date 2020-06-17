@@ -10,7 +10,7 @@ WIDTH = 1250
 HEIGHT = 800
 
 gameDisplay = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption('Owens Game')
+pygame.display.set_caption("8 Player Texas Hold\'em")
 
 font48 = pygame.font.SysFont(None, 48)
 font30 = pygame.font.SysFont(None, 30)
@@ -139,7 +139,7 @@ class card():
 
 class button():
 
-    def __init__(self, x, y, w, h, color, text, textColor):
+    def __init__(self, x, y, w, h, color, text, textColor, textVert = False):
         self.x = x
         self.y = y
         self.w = w
@@ -147,6 +147,8 @@ class button():
         self.color = color
         self.text = text
         self.textColor = textColor
+        self.textVert = textVert
+
 
     def draw(self):
         global gameDisplay
@@ -165,8 +167,10 @@ class button():
     def setText(self, text):
         self.text = text
 
+
+
 t0 = time.time()
-offset = 100
+offset = 160
 checkButton = button(offset + 15,740 , 100,50, (255,255,255), "check", (0,0,0))
 foldButton = button(offset + 130,740 , 100,50, (255,255,255), "fold", (0,0,0))
 sub10Bet = button(offset + 280,740 , 70,50, (255,255,255), "-10x", (0,0,0))
@@ -177,10 +181,73 @@ betAmount = button(offset + 430,740 , 70,50, (255,255,255), "0", (0,0,0))
 callButton = button(offset + 700,740 , 100,50, (255,255,255), "Call", (0,0,0))
 allInButton = button(offset + 815,740 , 100,50, (240,0,0), "ALL IN", (0,0,0))
 
-buttons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton]
 
-testCard = card(50,50, "h", 2, False)
 
+userCard1 = card(530,600, "s", 1, False)
+userCard2 = card(630,600, "h", 1, False)
+
+op1Card1 = card(530,45, "b", 1, False)
+op1Card2 = card(630,45, "b", 1, False)
+op1BetButton = button(575,215 , 100,35, (255,255,255), "op1Bet", (0,0,0))
+op1ChipsButton = button(575,175 , 100,35, (255,255,255), "op1Chips", (0,0,0))
+op1Name = button(575,5 , 100,35, (255,255,255), "op1Name", (0,0,0))
+
+offset = -460
+op2Card1 = card(offset + 530,45, "b", 1, False)
+op2Card2 = card(offset + 630,45, "b", 1, False)
+op2BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op2Bet", (0,0,0))
+op2ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op2Chips", (0,0,0))
+op2Name = button(offset + 575,5 , 100,35, (255,255,255), "op2Name", (0,0,0))
+
+offset = 460
+op3Card1 = card(offset + 530,45, "b", 1, False)
+op3Card2 = card(offset + 630,45, "b", 1, False)
+op3BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op3Bet", (0,0,0))
+op3ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op3Chips", (0,0,0))
+op3Name = button(offset + 575,5 , 100,35, (255,255,255), "op3Name", (0,0,0))
+
+offset = -230
+op4Card1 = card(offset + 530,45, "b", 1, False)
+op4Card2 = card(offset + 630,45, "b", 1, False)
+op4BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op4Bet", (0,0,0))
+op4ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op4Chips", (0,0,0))
+op4Name = button(offset + 575,5 , 100,35, (255,255,255), "op4Name", (0,0,0))
+
+offset = 230
+op5Card1 = card(offset + 530,45, "b", 1, False)
+op5Card2 = card(offset + 630,45, "b", 1, False)
+op5BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op5Bet", (0,0,0))
+op5ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op5Chips", (0,0,0))
+op5Name = button(offset + 575,5 , 100,35, (255,255,255), "op5Name", (0,0,0))
+
+op6Card1 = card(5,350, "b", 1, True)
+op6Card2 = card(5,450, "b", 1, True)
+op6BetButton = button(140,450 , 100,35, (255,255,255), "op6Bet", (0,0,0))
+op6ChipsButton = button(140,410 , 100,35, (255,255,255), "op6Chips", (0,0,0))
+op6Name = button(20,310 , 100,35, (255,255,255), "op6Name", (0,0,0))
+
+op7Card1 = card(1245-127,350, "b", 1, True)
+op7Card2 = card(1245-127,450, "b", 1, True)
+op7BetButton = button(1250-240,450 , 100,35, (255,255,255), "op7Bet", (0,0,0))
+op7ChipsButton = button(1250-240,410 , 100,35, (255,255,255), "op7Chips", (0,0,0))
+op7Name = button(1250-120,310 , 100,35, (255,255,255), "op7Name", (0,0,0))
+
+offset = 380
+dist = 100
+yTab = 375
+tabCard1= card(offset + 0* dist,yTab, "b", 1, False)
+tabCard2= card(offset + 1* dist,yTab, "b", 1, False)
+tabCard3= card(offset + 2* dist,yTab, "b", 1, False)
+tabCard4= card(offset + 3* dist,yTab, "b", 1, False)
+tabCard5= card(offset + 4* dist,yTab, "b", 1, False)
+
+cards = [userCard1, userCard2, op1Card1, op1Card2, op2Card1, op2Card2, op3Card1, op3Card2, op4Card1, op4Card2, op5Card1, op5Card2, op6Card1, op6Card2, op7Card1, op7Card2, \
+    tabCard1, tabCard2, tabCard3, tabCard4, tabCard5]
+
+
+buttons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton, op1BetButton, op1ChipsButton, op1Name, \
+    op2Name, op2ChipsButton, op2BetButton, op3Name, op3ChipsButton, op3BetButton,op4Name, op4ChipsButton, op4BetButton,op5Name, op5ChipsButton, op5BetButton, \
+    op6Name, op6ChipsButton, op6BetButton, op7Name, op7ChipsButton, op7BetButton]
 
 prevClick = False
 
@@ -196,14 +263,16 @@ while not crashed:
     for button in buttons:
         button.draw()
 
+    for card in cards:
+        card.draw()
+
     delta = time.time() - t0
     #print(delta)
 
-    testCard.draw()
 
     mouse = pygame.mouse.get_pos() #mouse is a touple, 0 is x 1 is y
     click = pygame.mouse.get_pressed() #click is touple, 0 is left, 1 is middle, 2 is right click
-
+    print(mouse)
     if prevClick == 1 and click[0] == 0:
         for button in buttons:
             if button.isClicked(mouse):
