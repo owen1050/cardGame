@@ -1,5 +1,7 @@
 import pygame, math
 
+cardNumToStr = {1:"A", 2:"2", 3:"3",4:"4", 5:"5", 6:"6",7:"7", 8:"8", 9:"9",10:"10", 11:"J", 12:"Q", 13:"K"}
+
 pygame.init()
 
 WIDTH = 1200
@@ -12,7 +14,7 @@ clock = pygame.time.Clock()
 
 crashed = False
 
-gameDisplay.fill((0,0,0))
+gameDisplay.fill((42,112,60))
 
 class ball():
     def __init__(self, x, y, vx, vy, r):
@@ -74,7 +76,7 @@ class card():
         self.width = 90
         self.height = 120
     def draw(self):
-        global gameDisplay
+        global gameDisplay, cardNumToStr
         x = self.x
         y = self.y
         r = self.r
@@ -84,21 +86,34 @@ class card():
         lineThickness = 3
 
         c1 = pygame.draw.rect(surface = gameDisplay, color = (255,255,255),rect =  (x, y, w, h),width = lineThickness,  border_radius = r)
-        
-        
+        pth = str(self.suit) + ".jpg"
+        suitImg = pygame.image.load(pth)
+        gameDisplay.blit(suitImg, (x + w/4.5,y + h/7))
+
+
+        suitCol = (0,0,0)
+        if self.suit == "h" or self.suit == "d":
+            suitCol = (220,0,0)
         font = pygame.font.SysFont(None, 48)
-        img = font.render("Test", True, (255,0,0))
-        gameDisplay.blit(img, (250,400))
+        img = font.render(cardNumToStr[self.value], True, suitCol)
+        gameDisplay.blit(img, (x + w/3,y + h - 35))
 
 
-card1 = card(50,50, "H", 13)
-card1.draw()
+for i in range(13):
+    card1 = card(91*i, 0, 'h', i+1)
+    card1.draw()
+for i in range(13):
+    card1 = card(91*i, 120, 'd', i+1)
+    card1.draw()
 
-card1 = card(200,50, "H", 13)
-card1.draw()
+for i in range(13):
+    card1 = card(91*i, 240, 'c', i+1)
+    card1.draw()
 
-card1 = card(350,50, "H", 13)
-card1.draw()
+for i in range(13):
+    card1 = card(91*i, 360, 's', i+1)
+    card1.draw()
+
 
 while not crashed:
     for event in pygame.event.get():
