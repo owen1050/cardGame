@@ -167,8 +167,6 @@ class button():
     def setText(self, text):
         self.text = text
 
-
-
 t0 = time.time()
 offset = 160
 checkButton = button(offset + 15,740 , 100,50, (255,255,255), "check", (0,0,0))
@@ -180,8 +178,6 @@ add1Bet = button(offset + 505,740 , 70,50, (255,255,255), "+1x", (0,0,0))
 betAmount = button(offset + 430,740 , 70,50, (255,255,255), "0", (0,0,0))
 callButton = button(offset + 700,740 , 100,50, (255,255,255), "Call", (0,0,0))
 allInButton = button(offset + 815,740 , 100,50, (240,0,0), "ALL IN", (0,0,0))
-
-
 
 userCard1 = card(530,600, "s", 1, False)
 userCard2 = card(630,600, "h", 1, False)
@@ -241,18 +237,38 @@ tabCard3= card(offset + 2* dist,yTab, "b", 1, False)
 tabCard4= card(offset + 3* dist,yTab, "b", 1, False)
 tabCard5= card(offset + 4* dist,yTab, "b", 1, False)
 
-cards = [userCard1, userCard2, op1Card1, op1Card2, op2Card1, op2Card2, op3Card1, op3Card2, op4Card1, op4Card2, op5Card1, op5Card2, op6Card1, op6Card2, op7Card1, op7Card2, \
-    tabCard1, tabCard2, tabCard3, tabCard4, tabCard5]
+potButton = button(575,315 , 100,35, (255,255,255), "TotalPot", (0,0,0))
+playerBet = button(575,550 , 100,35, (255,255,255), "PlayerBet", (0,0,0))
+playerChips = button(750,675 , 120,35, (255,255,255), "Chips", (0,0,0))
 
+tabCards = [tabCard1, tabCard2, tabCard3, tabCard4, tabCard5]
 
-buttons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton, op1BetButton, op1ChipsButton, op1Name, \
-    op2Name, op2ChipsButton, op2BetButton, op3Name, op3ChipsButton, op3BetButton,op4Name, op4ChipsButton, op4BetButton,op5Name, op5ChipsButton, op5BetButton, \
-    op6Name, op6ChipsButton, op6BetButton, op7Name, op7ChipsButton, op7BetButton]
+userCards = [userCard1, userCard2]
+op1Cards = [op1Card1, op1Card2]
+op2Cards = [op2Card1, op2Card2]
+op3Cards = [op3Card1, op3Card2]
+op4Cards = [op4Card1, op4Card2]
+op5Cards = [op5Card1, op5Card2]
+op6Cards = [op6Card1, op6Card2]
+op7Cards = [op7Card1, op7Card2]
+
+cards = [tabCards, userCards, op1Cards, op2Cards, op3Cards, op4Cards, op5Cards, op6Cards, op7Cards]
+
+interfaceButtons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton,potButton, playerBet, playerChips]
+
+op1Buttons = [op1BetButton, op1ChipsButton, op1Name]
+op2Buttons = [op2BetButton, op2ChipsButton, op2Name]
+op3Buttons = [op3BetButton, op3ChipsButton, op3Name]
+op4Buttons = [op4BetButton, op4ChipsButton, op4Name]
+op5Buttons = [op5BetButton, op5ChipsButton, op5Name]
+op6Buttons = [op6BetButton, op6ChipsButton, op6Name]
+op7Buttons = [op7BetButton, op7ChipsButton, op7Name]
+
+buttons = [interfaceButtons, op1Buttons, op2Buttons, op3Buttons, op4Buttons, op5Buttons, op6Buttons, op7Buttons]
 
 prevClick = False
 
 while not crashed:
-
     gameDisplay.fill((42,112,60))
 
     for event in pygame.event.get():
@@ -260,11 +276,17 @@ while not crashed:
             crashed = True
         #print(event)
 
-    for button in buttons:
-        button.draw()
+    i = 0
+    while i < numPlayers:
+        for button in buttons[i]:
+            button.draw()
+        i = i + 1
 
-    for card in cards:
-        card.draw()
+    i = 0
+    while i < numPlayers+1:
+        for card in cards[i]:
+            card.draw() 
+        i = i + 1
 
     delta = time.time() - t0
     #print(delta)
@@ -272,7 +294,7 @@ while not crashed:
 
     mouse = pygame.mouse.get_pos() #mouse is a touple, 0 is x 1 is y
     click = pygame.mouse.get_pressed() #click is touple, 0 is left, 1 is middle, 2 is right click
-    print(mouse)
+    #print(mouse)
     if prevClick == 1 and click[0] == 0:
         for button in buttons:
             if button.isClicked(mouse):
@@ -292,7 +314,7 @@ while not crashed:
     prevClick = click[0]
     
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(30)
 
 pygame.quit()
 quit()
