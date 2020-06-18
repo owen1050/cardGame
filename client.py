@@ -23,8 +23,8 @@ if setup:
     r = requests.get(url, data = payload, headers = headers)
     print(r.text)
 
-#payload = "~!Owen2!action:bet:10000:~"
-payload = "~update~"
+payload = "~!Owen11!action:bet:10000:~"
+#payload = "~update~"
 headers = {'Content-Length':str(len(payload))}
 
 r = requests.get(url, data = payload, headers = headers)

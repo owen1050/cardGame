@@ -51,12 +51,15 @@ class server(BaseHTTPRequestHandler):
 
                 replyString = "ran action"
             else:
-                numberOfPlayers = numberOfPlayers + 1
-                names.append(playerName)
-                chipCounts.append(0)
-                bets.append(0)
-                cards.append(["0", "0"])
-                replyString = "Added player " + playerName
+                if numberOfPlayers + 1 <= 8:
+                    numberOfPlayers = numberOfPlayers + 1
+                    names.append(playerName)
+                    chipCounts.append(0)
+                    bets.append(0)
+                    cards.append(["0", "0"])
+                    replyString = "Added player " + playerName
+                else:
+                    replyString = "sorry the game is full"
         
 
 

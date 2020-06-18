@@ -1,4 +1,6 @@
-import pygame, math, time
+import pygame, math, time, requests
+
+url = 'http://192.168.1.229:23663'
 
 t0 = time.time()
 
@@ -268,6 +270,8 @@ buttons = [interfaceButtons, op1Buttons, op2Buttons, op3Buttons, op4Buttons, op5
 
 prevClick = False
 
+numPlayers = 1
+
 while not crashed:
     gameDisplay.fill((42,112,60))
 
@@ -291,6 +295,14 @@ while not crashed:
     delta = time.time() - t0
     #print(delta)
 
+    payload = "~update~"
+    headers = {'Content-Length':str(len(payload))}
+
+    r = requests.get(url, data = payload, headers = headers)
+    update = r.text
+    i0 = update.find("!") + 1
+    i1 = update.find("!", i0)
+    numPlayers = int(update[i0:i1])
 
     mouse = pygame.mouse.get_pos() #mouse is a touple, 0 is x 1 is y
     click = pygame.mouse.get_pressed() #click is touple, 0 is left, 1 is middle, 2 is right click
