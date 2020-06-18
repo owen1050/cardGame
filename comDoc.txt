@@ -1,16 +1,12 @@
 get:
-	~newPlayer:<name>:~
-reply:
-	new palayer create <name>
-
-get:
 	~update~
 reply:
-	~players:<p1>:<p2>:<p3>:/table:<card1>:<card2>:<card3>:/hands:<pl-<card1><card2>:<p1-<card1><card2>:/bets:<p2-<bet>->:<p2-<bet>->:/turn:<playerName>:/
+	~!<num players>!player1:<name>:<card1>:<card2>:<chips>:<bet>:player2:<name>:<card1>:<card2>:<chips>:<bet>:......~
 
 get:
-	~action:<fold/bet<money>/
+	~!<player name>!action:<fold/bet>:<amount>~
 
 
 
-card = <A/K/Q/J/10/9.../2-H/C/S/D>
+card = <C/S/H/D/B-1-13>
+
