@@ -18,7 +18,8 @@ class texasHold():
         self.wholeDeck = ["H1","H2","H3","H4","H5","H6","H7","H8","H9","H10","H11","H12","H13","S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12","C13"]
         self.currentDeck = []
         self.callValue = 0
-        self.tableCards = []
+        self.tableCards = ["b1", "b1", "b1", "b1", "b1"]
+        self.pot = 0
 
 
     def getPlayerIndex(self, name):
@@ -52,7 +53,7 @@ class texasHold():
     def setBet(self, name, newBet):
         if name in self.names:
             indexOfPlayer = self.names.index(name)
-            if int(newBet) > self.callValue:
+            if int(newBet) > int(self.callValue):
                 self.callValue = newBet
                 self.readyAtPlayer = indexOfPlayer
             
@@ -92,6 +93,7 @@ class texasHold():
 
     def startHand(self):
         self.playersInCurrentHand.clear()
+        self.tableCards = ["b1", "b1", "b1", "b1", "b1"]
         for name in self.names:
             self.playersInCurrentHand.append(name)
 
@@ -130,31 +132,66 @@ class texasHold():
         self.cards = tcards
 
     def flop(self):
-        th = []
         r1 = int(random() * len(self.currentDeck))
-        th.append(self.currentDeck.pop(r1))
+        self.tableCards[0] = self.currentDeck.pop(r1)
         r2 = int(random() * len(self.currentDeck))
-        th.append(self.currentDeck.pop(r2))
-        r3 = int(random() * len(self.currentDeck))
-        th.append(self.currentDeck.pop(r3))
-        for t in th:
-            self.tableCards.append(t)
+        self.tableCards[1] = self.currentDeck.pop(r2)
+        r3 = int(random() * len(self.currentDeck))        
+        self.tableCards[2] = self.currentDeck.pop(r3)
+
+        pot = 0
+        for i in range(len(self.bets)):
+            pot = pot + self.bets[i]
+            self.bets[i] = 0
+        self.pot = pot
+        self.callValue = 0
+
+    def turn(self):
+        r1 = int(random() * len(self.currentDeck))
+        self.tableCards[3] = self.currentDeck.pop(r1)
+
+        pot = 0
+        for i in range(len(self.bets)):
+            pot = pot + self.bets[i]
+            self.bets[i] = 0
+        self.pot = self.pot + pot
+        self.callValue = 0
+
+    def river(self):
+        r1 = int(random() * len(self.currentDeck))
+        self.tableCards[4] = self.currentDeck.pop(r1)
+
+        pot = 0
+        for i in range(len(self.bets)):
+            pot = pot + self.bets[i]
+            self.bets[i] = 0
+        self.pot = self.pot + pot
+        self.callValue = 0
+
+    def evalWinnerAndReset(self):
+        #need to eval winner and give chips at some point
+        self.startHand()
+
 
     def advanceWaiting(self):
         ind = self.getPlayerIndexHand(self.waitingOnPlayer)
         if ind - 1 >= 0:
             self.waitingOnPlayer = self.playersInCurrentHand[ind-1]
-            print("ran")
         else:
             self.waitingOnPlayer = self.playersInCurrentHand[len(self.playersInCurrentHand) - 1]
+
+        ind = self.getPlayerIndexHand(self.waitingOnPlayer)
         if ind == self.readyAtPlayer:
-            if len(self.tableCards) == 0:
+            if self.tableCards[0] == "b1":
                 self.flop()
-        print(self.waitingOnPlayer)
+            elif self.tableCards[3] == "b1":
+                self.turn()
+            elif self.tableCards[4] == "b1":
+                self.river()
+            else:
+                self.evalWinnerAndReset()
 
 
-
-    
 class server(BaseHTTPRequestHandler):
     
     def log_message(self, format, *args):
@@ -181,7 +218,7 @@ class server(BaseHTTPRequestHandler):
             replyString = replyString + "CALL[" + str(game.callValue)+"]"
             replyString = replyString + "BLIND[" + str(game.blind)+"]"
             replyString = replyString + "TABLE[" + str(game.tableCards)+"]"
-
+            replyString = replyString + "POT[" + str(game.pot)+"]"
 
 
             replyString = replyString + "~"
@@ -205,7 +242,7 @@ class server(BaseHTTPRequestHandler):
                 print(valueStr)
 
                 if actionStr == "bet":
-                    if int(valueStr) == int(game.callValue) or int(valueStr) > int(game.callValue) + int(game.blind):
+                    if int(valueStr) == int(game.callValue) or int(valueStr) >= int(game.callValue) + int(game.blind):
                         replyString = game.setBet(playerName, valueStr)
                         if playerName == game.waitingOnPlayer:
                             game.advanceWaiting()
@@ -244,7 +281,7 @@ class server(BaseHTTPRequestHandler):
         self.wfile.write(bytes(replyString, "utf-8"))
         print("reply:" + replyString)
 
-port = 23666
+port = 23667
 
 game = texasHold()
 

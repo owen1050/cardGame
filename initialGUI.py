@@ -6,7 +6,7 @@ while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
 pw = "a" #input("password:")
 print(uname, pw)
 
-url = 'http://192.168.1.229:23666'
+url = 'http://192.168.1.229:23667'
 
 t0 = time.time()
 
@@ -146,6 +146,7 @@ class texasHold():
         self.callValue = 0
         self.blind = 0
         self.numberOfPlayers = 0
+        self.pot = 0
 
     def getPlayerIndex(self, name):
         if name in self.names:
@@ -266,6 +267,9 @@ class texasHold():
 
     def setBlind(self, val):
         self.blind = val
+
+    def setPot(self, val):
+        self.pot = val
 
 t0 = time.time()
 offset = 160
@@ -427,13 +431,19 @@ while not crashed:
     ts = []
     if len(cs) > 2:
         for c in cs:
-            i0 = c.find("'")+1
-            i1 = c.find("'", i0)
-            ts.append(c[i0:i1])
+            i0i= c.find("'")+1
+            i1i = c.find("'", i0i)
+            ts.append(c[i0i:i1i])
 
         for i in range(len(ts)):
             cards[0][i].setCard(ts[i])
 
+    i0 = update.find("[", i1+1)+1
+    i1 = update.find("]", i0)
+
+    game.setPot(int(update[i0:i1]))
+
+    buttons[0][9].setText("Pot:" + str(game.pot))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -471,7 +481,17 @@ while not crashed:
             buttons[p][0].setText("Bet:" + str(game.getBet(game.names[i])))
 
         i = i + 1
-    
+    i = i
+    for i in range(len(buttons)):
+        cds = game.getCards(buttons[i][2].text)
+        if cds != None:
+            tab = cards[i+1]
+            tab[0].setCard(cds[0])
+            tab[1].setCard(cds[1])
+            if tab[0].suit != "b" and tab[0].suit != "e":
+                tab[0].setSuit("b")
+            if tab[1].suit != "b" and tab[1].suit != "e":
+                tab[1].setSuit("b")
 
     cards[1][0].setCard(game.cards[game.getPlayerIndex(uname)][0])
     cards[1][1].setCard(game.cards[game.getPlayerIndex(uname)][1])
@@ -542,7 +562,7 @@ while not crashed:
     prevClick = click[0]
     
     pygame.display.update()
-    clock.tick(30)
+    clock.tick(20)
 
 pygame.quit()
 quit()

@@ -1,12 +1,12 @@
 import requests
 
-url = 'http://192.168.1.229:23666'
+url = 'http://192.168.1.229:23667'
 
 
 
 setup = True
 if setup:
-    names = ["owen", "josh", "jake"] #, "thomas", "kerry", "jason", "byron", "Amy"]
+    names = ["owen", "josh"]#"jake"] #, "thomas", "kerry", "jason", "byron", "Amy"]
     
     for i in range(len(names)) :
         payload = "~!" + names[i]+ "!~"
