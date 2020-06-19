@@ -6,7 +6,7 @@ while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
 pw = input("password:")
 print(uname, pw)
 
-url = 'http://192.168.1.229:23664'
+url = 'http://192.168.1.229:23666'
 
 t0 = time.time()
 
@@ -392,7 +392,6 @@ while not crashed:
     i1 = update.find("~", i0)
 
     game.setWOP(update[i0:i1])
-    print(game.waitingOnPlayer)
     
 
     for event in pygame.event.get():

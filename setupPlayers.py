@@ -1,6 +1,6 @@
 import requests
 
-url = 'http://192.168.1.229:23664'
+url = 'http://192.168.1.229:23666'
 
 
 
@@ -27,3 +27,10 @@ if setup:
         r = requests.get(url, data = payload, headers = headers)
         print(r.text)
 
+
+payload = "~!owen!action:startHand:1:~"
+#payload = "~update"
+headers = {'Content-Length':str(len(payload))}
+
+r = requests.get(url, data = payload, headers = headers)
+print(r.text)

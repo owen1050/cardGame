@@ -11,8 +11,19 @@ class texasHold():
 
         self.numberOfPlayers = 0
         self.dealer = 0
-        self.waitingOnPlayer = "owen"
+        self.waitingOnPlayer = ""
         self.blind = 100
+        self.readyAtPlayer = 0
+
+
+
+    def getPlayerIndex(self, name):
+        if name in self.names:
+            return self.names.index(name)
+
+    def getPlayerIndexHand(self, name):
+        if name in self.playersInCurrentHand:
+            return self.playersInCurrentHand.index(name)
 
     def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["0","0"]):
         if name in self.names:
@@ -72,25 +83,34 @@ class texasHold():
         for name in self.names:
             self.playersInCurrentHand.append(name)
 
-        sb = self.dealer + 1
-        bb = self.dealer + 2
-        fb = self.dealer + 3
+        sb = self.dealer - 1
+        bb = self.dealer - 2
+        fb = self.dealer - 3
+        
         pih = len(self.playersInCurrentHand)
-        if sb >= pih:
-            sb = sb - pih
-        if bb >= pih:
-            bb = bb - pih
-        if fb >= pih:
-            fb = fb - pih
+        if sb < 0:
+            sb = pih + sb
+        if bb < 0:
+            bb = pih + bb
+        if fb < 0:
+            fb = pih + fb
 
+        self.readyAtPlayer = fb
         self.setBet(self.playersInCurrentHand[sb], self.blind//2)
         self.setBet(self.playersInCurrentHand[bb], self.blind)
         self.waitingOnPlayer = self.playersInCurrentHand[fb]
+        
 
         return "PICH:" + str(self.playersInCurrentHand)
 
+    def dealCards(self):
+        
 
 
+    def advanceWaiting(self):
+        ind = self.getPlayerIndexHand(self.waitingOnPlayer)
+        if ind - 1 > 0:
+            self.waitingOnPlayer = self.playersInCurrentHand[ind-1]
 
     
 class server(BaseHTTPRequestHandler):
@@ -136,13 +156,18 @@ class server(BaseHTTPRequestHandler):
                 print(valueStr)
 
                 if actionStr == "bet":
-                   replyString = game.setBet(playerName, valueStr)
+                    replyString = game.setBet(playerName, valueStr)
+                    if playerName == game.waitingOnPlayer:
+                        game.advanceWaiting()
 
                 if actionStr == "fold":
-                   replyString = game.playerFolded(playerName)
+                    if playerName == game.waitingOnPlayer:
+                        game.advanceWaiting()
+                    replyString = game.playerFolded(playerName)
+                    
 
                 if actionStr == "setChips":
-                   replyString = game.setChipCounts(playerName, valueStr)
+                    replyString = game.setChipCounts(playerName, valueStr)
 
                 if actionStr == "setCards":
                     i0 = valueStr.find(",")
@@ -169,7 +194,7 @@ class server(BaseHTTPRequestHandler):
         self.wfile.write(bytes(replyString, "utf-8"))
         print("reply:" + replyString)
 
-port = 23664
+port = 23666
 
 game = texasHold()
 
