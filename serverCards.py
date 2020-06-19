@@ -10,6 +10,9 @@ class texasHold():
         self.playersInCurrentHand = []
 
         self.numberOfPlayers = 0
+        self.dealer = 0
+        self.waitingOnPlayer = "owen"
+        self.blind = 100
 
     def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["0","0"]):
         if name in self.names:
@@ -52,7 +55,7 @@ class texasHold():
     def getPlayerInfo(self, name):
         if name in self.names:
             pi = self.names.index(name)
-            return "player" + str(pi+1) + ":" +game.names[pi]+ ":"+ game.cards[pi][0] + ":" + game.cards[pi][1] + ":" + str(game.chipCounts[pi]) + ":" + str(game.bets[pi]) + ":"
+            return "player" + str(pi) + ":" +game.names[pi]+ ":"+ game.cards[pi][0] + ":" + game.cards[pi][1] + ":" + str(game.chipCounts[pi]) + ":" + str(game.bets[pi]) + ":"
         else:
             self.newPlayer(name)
             return self.getPlayerInfo(name, name)
@@ -63,6 +66,32 @@ class texasHold():
             return "player " + name + " folded"
         else:
             return "player not in current hand"
+
+    def startHand(self):
+        self.playersInCurrentHand.clear()
+        for name in self.names:
+            self.playersInCurrentHand.append(name)
+
+        sb = self.dealer + 1
+        bb = self.dealer + 2
+        fb = self.dealer + 3
+        pih = len(self.playersInCurrentHand)
+        if sb >= pih:
+            sb = sb - pih
+        if bb >= pih:
+            bb = bb - pih
+        if fb >= pih:
+            fb = fb - pih
+
+        self.setBet(self.playersInCurrentHand[sb], self.blind//2)
+        self.setBet(self.playersInCurrentHand[bb], self.blind)
+        self.waitingOnPlayer = self.playersInCurrentHand[fb]
+
+        return "PICH:" + str(self.playersInCurrentHand)
+
+
+
+
     
 class server(BaseHTTPRequestHandler):
     
@@ -82,7 +111,11 @@ class server(BaseHTTPRequestHandler):
 
             for player in game.names:
                 replyString = replyString + game.getPlayerInfo(player)
-            replyString = replyString + "~"
+            replyString = replyString + "PICH:"
+            for player in game.playersInCurrentHand:
+                replyString = replyString + str(player) + ":"
+
+            replyString = replyString + "WAITINGON[" + game.waitingOnPlayer+"~"
         else:
             i0 = body.find("!") + 1
             i1 = body.find("!", i0)
@@ -116,6 +149,9 @@ class server(BaseHTTPRequestHandler):
                     card1 = valueStr[:i0]
                     card2 = valueStr[i0+1:]
                     replyString = game.setCards(playerName, (card1, card2))
+
+                if actionStr == "startHand":
+                    replyString = game.startHand()
 
             else:
                 if game.numberOfPlayers < 8:

@@ -1,6 +1,8 @@
 import pygame, math, time, requests
 
-uname = input("Username:")
+uname = "player"
+while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
+    uname = input("Username:")
 pw = input("password:")
 print(uname, pw)
 
@@ -131,9 +133,13 @@ class texasHold():
         self.bets = []
         self.cards = []
         self.playersInCurrentHand = []
+        self.waitingOnPlayer = ""
 
         self.numberOfPlayers = 0
 
+    def getPlayerIndex(self, name):
+        if name in self.names:
+            return self.names.index(name)
 
     def getChipCount(self, name):
         if name in self.names:
@@ -235,6 +241,15 @@ class texasHold():
 
         return "updated database", name, card1, card2, chips, bet
 
+    def addToPICH(self, name):
+        if name in self.names and name not in self.playersInCurrentHand:
+            self.playersInCurrentHand.append(name)
+
+    def clearPICH(self):
+        self.playersInCurrentHand.clear()
+
+    def setWOP(self, name):
+        self.waitingOnPlayer = name
 
 t0 = time.time()
 offset = 160
@@ -313,25 +328,25 @@ playerChips = button(750,675 , 120,35, (255,255,255), "Chips", (0,0,0))
 tabCards = [tabCard1, tabCard2, tabCard3, tabCard4, tabCard5]
 
 userCards = [userCard1, userCard2]
-op1Cards = [op1Card1, op1Card2]
-op2Cards = [op2Card1, op2Card2]
-op3Cards = [op3Card1, op3Card2]
-op4Cards = [op4Card1, op4Card2]
-op5Cards = [op5Card1, op5Card2]
-op6Cards = [op6Card1, op6Card2]
-op7Cards = [op7Card1, op7Card2]
+op4Cards = [op1Card1, op1Card2]
+op6Cards = [op2Card1, op2Card2]
+op2Cards = [op3Card1, op3Card2]
+op5Cards = [op4Card1, op4Card2]
+op3Cards = [op5Card1, op5Card2]
+op7Cards = [op6Card1, op6Card2]
+op1Cards = [op7Card1, op7Card2]
 
 cards = [tabCards, userCards, op1Cards, op2Cards, op3Cards, op4Cards, op5Cards, op6Cards, op7Cards]
 
 interfaceButtons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton,potButton, playerBet, playerChips]
 
-op1Buttons = [op1BetButton, op1ChipsButton, op1Name]
-op2Buttons = [op2BetButton, op2ChipsButton, op2Name]
-op3Buttons = [op3BetButton, op3ChipsButton, op3Name]
-op4Buttons = [op4BetButton, op4ChipsButton, op4Name]
-op5Buttons = [op5BetButton, op5ChipsButton, op5Name]
-op6Buttons = [op6BetButton, op6ChipsButton, op6Name]
-op7Buttons = [op7BetButton, op7ChipsButton, op7Name]
+op4Buttons = [op1BetButton, op1ChipsButton, op1Name]
+op6Buttons = [op2BetButton, op2ChipsButton, op2Name]
+op2Buttons = [op3BetButton, op3ChipsButton, op3Name]
+op5Buttons = [op4BetButton, op4ChipsButton, op4Name]
+op3Buttons = [op5BetButton, op5ChipsButton, op5Name]
+op7Buttons = [op6BetButton, op6ChipsButton, op6Name]
+op1Buttons = [op7BetButton, op7ChipsButton, op7Name]
 
 buttons = [interfaceButtons, op1Buttons, op2Buttons, op3Buttons, op4Buttons, op5Buttons, op6Buttons, op7Buttons]
 
@@ -363,9 +378,22 @@ while not crashed:
         i0 = update.find(":", i0)+1
         i1 = update.find("player", i0)
 
-        print(game.updateDatabase(update[i0:i1]))
+        game.updateDatabase(update[i0:i1])
 
+    game.clearPICH()
+    i1 = update.find("PICH")+4
+    while update.find(":", i1+1) > 0:
+        i0 = update.find(":", i1)+1
+        i1 = update.find(":", i0)
 
+        game.addToPICH(update[i0:i1])
+
+    i0 = update.find("[", i1)+1
+    i1 = update.find("~", i0)
+
+    game.setWOP(update[i0:i1])
+    print(game.waitingOnPlayer)
+    
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -375,18 +403,25 @@ while not crashed:
     
     i = 0
     p = 1
+
+    userIndex = game.getPlayerIndex(uname)
+
     while i < numPlayers:
         for button in buttons[i]:
             button.draw()
         
         if game.names[i] == uname:
             p = 0
-            buttons[0][10].setText(game.getBet(uname))
-            buttons[0][11].setText(game.getChipCount(uname))
+            buttons[0][10].setText("Bet:" + str(game.getBet(uname)))
+            buttons[0][11].setText("Chips:" + str(game.getChipCount(uname)))
         else:
-            buttons[i+p][2].setText(game.names[i])
-            buttons[i+p][1].setText(game.getChipCount(game.names[i]))
-            buttons[i+p][0].setText(game.getBet(game.names[i]))
+            if i < userIndex:
+                p = numPlayers - userIndex + i
+            else:
+                p = i - userIndex
+            buttons[p][2].setText(game.names[i])
+            buttons[p][1].setText("Bet:" + str(game.getChipCount(game.names[i])))
+            buttons[p][0].setText("Chips:" + str(game.getBet(game.names[i])))
 
         i = i + 1
 
