@@ -20,8 +20,8 @@ HEIGHT = 800
 gameDisplay = pygame.display.set_mode((WIDTH,HEIGHT))
 pygame.display.set_caption("8 Player Texas Hold\'em")
 
-font48 = pygame.font.SysFont(None, 48)
-font30 = pygame.font.SysFont(None, 30)
+font48 = pygame.font.Font("arial.ttf", 30)
+font30 = pygame.font.Font("arial.ttf", 20)
 
 clock = pygame.time.Clock()
 
