@@ -1,6 +1,10 @@
 import pygame, math, time, requests
 
-url = 'http://192.168.1.229:23663'
+uname = input("Username:")
+pw = input("password:")
+print(uname, pw)
+
+url = 'http://192.168.1.229:23664'
 
 t0 = time.time()
 
@@ -25,55 +29,6 @@ gameDisplay.fill((42,112,60))
 
 print("init time:" + str(time.time()-t0))
 
-class ball():
-    def __init__(self, x, y, vx, vy, r):
-        global WIDTH, HEIGHT
-        self.x = x
-        self.y = y
-        self. vx = vx
-        self.vy = vy
-        self. r = r
-        self.prevGroundCount = 0
-    def draw(self):
-        global gameDisplay
-        pygame.draw.circle(gameDisplay, (0,255,255), (self.x, self.y), self.r, 3)
-    def clear(self):
-        global gameDisplay
-        pygame.draw.circle(gameDisplay, (0,0,0), (self.x, self.y), self.r, 3)
-    def update(self):
-        global gameDisplay, WIDTH, HEIGHT
-        self.clear()
-        wallF = 0.93
-
-        self.vy = self.vy + 1
-        self.y = self.y + self.vy
-
-        self.x = self.x + self.vx
-        if self.x + self.r > WIDTH:
-            self.x = WIDTH - self.r
-            self.vx = self.vx * -wallF
-        if self.x < self.r:
-            self.x = self.r
-            self.vx = self.vx * -wallF
-
-        if self.y + self.r > HEIGHT:
-            self.y = HEIGHT - self.r
-            self.vy = self.vy * -wallF
-
-        if self.y < self.r:
-            self.y = self.r
-            self.vy = self.vy * -wallF
-
-        if self.prevGroundCount > 3 and  self.y == HEIGHT - self.r:
-            self.vx = self.vx * 0.99
-
-        if self.y == HEIGHT - self.r:
-            self.prevGroundCount = self.prevGroundCount + 1
-        else:
-            self.prevGroundCount = 0
-
-
-        self.draw()
 
 class card():
     def __init__(self, x, y, suit, value, rotate):
@@ -167,7 +122,119 @@ class button():
         return False
 
     def setText(self, text):
-        self.text = text
+        self.text = str(text)
+
+class texasHold():
+    def __init__(self):
+        self.names = []
+        self.chipCounts = []
+        self.bets = []
+        self.cards = []
+        self.playersInCurrentHand = []
+
+        self.numberOfPlayers = 0
+
+
+    def getChipCount(self, name):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            return self.chipCounts[indexOfPlayer]
+
+    def getBet(self, name):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            return self.bets[indexOfPlayer]
+
+    def getCards(self, name):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            return self.cards[indexOfPlayer]
+
+    def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["0","0"]):
+        if name in self.names:
+            return "Name already taken"
+        else:
+            self.names.append(name)
+            self.chipCounts.append(chipCounts)
+            self.bets.append(bet)
+            self.cards.append(cards)
+            self.numberOfPlayers = self.numberOfPlayers + 1
+            return "created player named:" + name
+
+    def setChipCounts(self, name, newCount):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            self.chipCounts[indexOfPlayer] = int(newCount)
+            return "set " + name + "'s chip count to " + str(newCount)
+        else:
+            self.newPlayer(name)
+            return self.setChipCounts(name, newCount)
+            
+    def setBet(self, name, newBet):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            self.bets[indexOfPlayer] = int(newBet)
+            return "set " + name + "'s bet to " + str(newBet)
+        else:
+            self.newPlayer(name)
+            return self.setBet(name, newBet)
+
+    def setCards(self, name, newCards):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            self.cards[indexOfPlayer] = newCards
+            return "set " + name + "'s bet to " + str(newCards)
+        else:
+            self.newPlayer(name)
+            return self.setCards(name, newCards)
+
+    def getPlayerInfo(self, name):
+        if name in self.names:
+            pi = self.names.index(name)
+            return "player" + str(pi+1) + ":" +game.names[pi]+ ":"+ game.cards[pi][0] + ":" + game.cards[pi][1] + ":" + str(game.chipCounts[pi]) + ":" + str(game.bets[pi]) + ":"
+        else:
+            self.newPlayer(name)
+            return self.getPlayerInfo(name, name)
+
+    def playerFolded(self, name):
+        if name in self.playersInCurrentHand:
+            self.playersInCurrentHand.remove(name)
+            return "player " + name + " folded"
+        else:
+            return "player not in current hand"
+
+    def updateDatabase(self, update):
+        i0 = 0
+        i1 = update.find(":", i0)
+
+        name = update[i0:i1]
+
+        i0 = update.find(":", i1) + 1
+        i1 = update.find(":", i0)
+
+        card1 = update[i0:i1]
+
+        i0 = update.find(":", i1) + 1
+        i1 = update.find(":", i0)
+
+        card2 = update[i0:i1]
+
+        i0 = update.find(":", i1) + 1
+        i1 = update.find(":", i0)
+
+        chips = update[i0:i1]
+
+        i0 = update.find(":", i1) + 1
+        i1 = update.find(":", i0)
+
+        bet = update[i0:i1]
+
+        self.setCards(name, (card1, card2))
+        self.setChipCounts(name, chips)
+        self.setBet(name, bet)
+
+        return "updated database", name, card1, card2, chips, bet
+
 
 t0 = time.time()
 offset = 160
@@ -272,18 +339,55 @@ prevClick = False
 
 numPlayers = 1
 
+payload = "~!" + uname+ "!~"
+headers = {'Content-Length':str(len(payload))}
+
+r = requests.get(url, data = payload, headers = headers)
+
+game = texasHold()
+
 while not crashed:
     gameDisplay.fill((42,112,60))
+
+    payload = "~update~"
+    headers = {'Content-Length':str(len(payload))}
+
+    r = requests.get(url, data = payload, headers = headers)
+    update = r.text
+    i0 = update.find("!") + 1
+    i1 = update.find("!", i0)
+    numPlayers = int(update[i0:i1])
+
+    while update.find("player", i1) > 0:
+        i0 = update.find("player", i1)
+        i0 = update.find(":", i0)+1
+        i1 = update.find("player", i0)
+
+        print(game.updateDatabase(update[i0:i1]))
+
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             crashed = True
         #print(event)
 
+    
     i = 0
+    p = 1
     while i < numPlayers:
         for button in buttons[i]:
             button.draw()
+        
+        if game.names[i] == uname:
+            p = 0
+            buttons[0][10].setText(game.getBet(uname))
+            buttons[0][11].setText(game.getChipCount(uname))
+        else:
+            buttons[i+p][2].setText(game.names[i])
+            buttons[i+p][1].setText(game.getChipCount(game.names[i]))
+            buttons[i+p][0].setText(game.getBet(game.names[i]))
+
         i = i + 1
 
     i = 0
@@ -295,34 +399,26 @@ while not crashed:
     delta = time.time() - t0
     #print(delta)
 
-    payload = "~update~"
-    headers = {'Content-Length':str(len(payload))}
-
-    r = requests.get(url, data = payload, headers = headers)
-    update = r.text
-    i0 = update.find("!") + 1
-    i1 = update.find("!", i0)
-    numPlayers = int(update[i0:i1])
-
     mouse = pygame.mouse.get_pos() #mouse is a touple, 0 is x 1 is y
     click = pygame.mouse.get_pressed() #click is touple, 0 is left, 1 is middle, 2 is right click
     #print(mouse)
     if prevClick == 1 and click[0] == 0:
-        for button in buttons:
-            if button.isClicked(mouse):
-                print(button.text)
+        for buttonLists in buttons:
+            for button in buttonLists:
+                if button.isClicked(mouse):
+                    print(button.text)
 
-                if button.text == "-10x":
-                    buttons[6].setText(str(int(buttons[6].text) - 10))
-                if button.text == "-1x":
-                    buttons[6].setText(str(int(buttons[6].text) - 1))
-                if button.text == "+10x":
-                    buttons[6].setText(str(int(buttons[6].text) + 10))
-                if button.text == "+1x":
-                    buttons[6].setText(str(int(buttons[6].text) + 1))
+                    if button.text == "-10x":
+                        buttons[0][6].setText(str(int(buttons[0][6].text) - 10))
+                    if button.text == "-1x":
+                        buttons[0][6].setText(str(int(buttons[0][6].text) - 1))
+                    if button.text == "+10x":
+                        buttons[0][6].setText(str(int(buttons[0][6].text) + 10))
+                    if button.text == "+1x":
+                        buttons[0][6].setText(str(int(buttons[0][6].text) + 1))
 
-                if int(buttons[6].text) < 0:
-                    buttons[6].setText("0")
+                    if int(buttons[0][6].text) < 0:
+                        buttons[0][6].setText("0")
     prevClick = click[0]
     
     pygame.display.update()

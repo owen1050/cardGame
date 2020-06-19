@@ -1,22 +1,76 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time, threading
 
-port = 23663
+class texasHold():
+    def __init__(self):
+        self.names = []
+        self.chipCounts = []
+        self.bets = []
+        self.cards = []
+        self.playersInCurrentHand = []
 
-numberOfPlayers = 0
+        self.numberOfPlayers = 0
 
-names = []
-chipCounts = []
-bets = []
-cards = []
+    def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["0","0"]):
+        if name in self.names:
+            return "Name already taken"
+        else:
+            self.names.append(name)
+            self.chipCounts.append(chipCounts)
+            self.bets.append(bet)
+            self.cards.append(cards)
+            self.numberOfPlayers = self.numberOfPlayers + 1
+            return "created player named:" + name
 
+    def setChipCounts(self, name, newCount):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            self.chipCounts[indexOfPlayer] = int(newCount)
+            return "set " + name + "'s chip count to " + str(newCount)
+        else:
+            self.newPlayer(name)
+            return self.setChipCounts(name, newCount)
+            
+    def setBet(self, name, newBet):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            self.bets[indexOfPlayer] = int(newBet)
+            return "set " + name + "'s bet to " + str(newBet)
+        else:
+            self.newPlayer(name)
+            return self.setBet(name, newBet)
+
+    def setCards(self, name, newCards):
+        if name in self.names:
+            indexOfPlayer = self.names.index(name)
+            self.cards[indexOfPlayer] = newCards
+            return "set " + name + "'s bet to " + str(newCards)
+        else:
+            self.newPlayer(name)
+            return self.setCards(name, newCards)
+
+    def getPlayerInfo(self, name):
+        if name in self.names:
+            pi = self.names.index(name)
+            return "player" + str(pi+1) + ":" +game.names[pi]+ ":"+ game.cards[pi][0] + ":" + game.cards[pi][1] + ":" + str(game.chipCounts[pi]) + ":" + str(game.bets[pi]) + ":"
+        else:
+            self.newPlayer(name)
+            return self.getPlayerInfo(name, name)
+
+    def playerFolded(self, name):
+        if name in self.playersInCurrentHand:
+            self.playersInCurrentHand.remove(name)
+            return "player " + name + " folded"
+        else:
+            return "player not in current hand"
+    
 class server(BaseHTTPRequestHandler):
     
     def log_message(self, format, *args):
         return
 
     def do_GET(self):
-        global numberOfPlayers, names, chipCounts, bets, cards
+        global game
         content_len = int(self.headers.get('Content-Length'))
         post_body = str(self.rfile.read(content_len))
         body = post_body[2:-1]
@@ -24,46 +78,51 @@ class server(BaseHTTPRequestHandler):
         replyString = ""
         
         if body.find("~update") >= 0:
-            replyString = replyString + "~!" + str(numberOfPlayers)+ "!"
+            replyString = replyString + "~!" + str(game.numberOfPlayers)+ "!"
 
-            for pi in range(numberOfPlayers):
-                replyString = replyString + "player" + str(pi+1) + ":" +names[pi]+ ":"+ cards[pi][0] + ":" + cards[pi][1] + ":" + str(chipCounts[pi]) + ":" + str(bets[pi]) + ":"
+            for player in game.names:
+                replyString = replyString + game.getPlayerInfo(player)
             replyString = replyString + "~"
         else:
             i0 = body.find("!") + 1
             i1 = body.find("!", i0)
             playerName = body[i0:i1]
             print("Name:" + playerName)
-            if playerName in names:
-                pi = names.index(playerName)
 
+            if playerName in game.names:
+                
                 i0 = body.find(":") + 1
                 i1 = body.find(":", i0)
 
                 actionStr = body[i0:i1]
-                print("Action:" + actionStr)
-
+                print(actionStr)
                 i0 = body.find(":", i1) + 1
                 i1 = body.find(":", i0)
 
-                actionStr2 = body[i0:i1]
-                print("Value:" + actionStr2)
+                valueStr= body[i0:i1]
+                print(valueStr)
 
-                replyString = "ran action"
+                if actionStr == "bet":
+                   replyString = game.setBet(playerName, valueStr)
+
+                if actionStr == "fold":
+                   replyString = game.playerFolded(playerName)
+
+                if actionStr == "setChips":
+                   replyString = game.setChipCounts(playerName, valueStr)
+
+                if actionStr == "setCards":
+                    i0 = valueStr.find(",")
+                    card1 = valueStr[:i0]
+                    card2 = valueStr[i0+1:]
+                    replyString = game.setCards(playerName, (card1, card2))
+
             else:
-                if numberOfPlayers + 1 <= 8:
-                    numberOfPlayers = numberOfPlayers + 1
-                    names.append(playerName)
-                    chipCounts.append(0)
-                    bets.append(0)
-                    cards.append(["0", "0"])
-                    replyString = "Added player " + playerName
+                if game.numberOfPlayers < 8:
+                    replyString = game.newPlayer(playerName)
                 else:
                     replyString = "sorry the game is full"
         
-
-
-
         if(replyString == ""):
             replyString = "Error, no action based off body"
 
@@ -73,6 +132,10 @@ class server(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(replyString, "utf-8"))
         print("reply:" + replyString)
+
+port = 23664
+
+game = texasHold()
 
 ser = HTTPServer(('', port), server)
 

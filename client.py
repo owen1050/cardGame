@@ -1,31 +1,29 @@
 import requests
 
-url = 'http://192.168.1.229:23663'
+url = 'http://192.168.1.229:23664'
 
-setup = False
+
+
+setup = True
 if setup:
+    names = ["owen", "josh", "jake", "thomas", "kerry", "jason", "byron", "Amy"]
+    
+    for i in range(len(names)) :
+        payload = "~!" + names[i]+ "!~"
+        headers = {'Content-Length':str(len(payload))}
 
-    payload = "~update~"
-    headers = {'Content-Length':str(len(payload))}
+        r = requests.get(url, data = payload, headers = headers)
+        print(r.text)
 
-    r = requests.get(url, data = payload, headers = headers)
-    print(r.text)
+        payload = "~!" + names[i]+ "!action:setChips:" + str(i) +"~"
+        headers = {'Content-Length':str(len(payload))}
 
-    payload = "~!Owen1!~"
-    headers = {'Content-Length':str(len(payload))}
+        r = requests.get(url, data = payload, headers = headers)
+        print(r.text)
 
-    r = requests.get(url, data = payload, headers = headers)
-    print(r.text)
+        payload = "~!" + names[i]+ "!action:bet:" + str(i) +"~"
+        headers = {'Content-Length':str(len(payload))}
 
-    payload = "~update~"
-    headers = {'Content-Length':str(len(payload))}
+        r = requests.get(url, data = payload, headers = headers)
+        print(r.text)
 
-    r = requests.get(url, data = payload, headers = headers)
-    print(r.text)
-
-payload = "~!Owen11!action:bet:10000:~"
-#payload = "~update~"
-headers = {'Content-Length':str(len(payload))}
-
-r = requests.get(url, data = payload, headers = headers)
-print(r.text)
