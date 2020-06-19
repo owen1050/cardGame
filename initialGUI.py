@@ -3,7 +3,7 @@ import pygame, math, time, requests
 uname = "player"
 while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
     uname = input("Username:")
-pw = input("password:")
+pw = "a" #input("password:")
 print(uname, pw)
 
 url = 'http://192.168.1.229:23666'
@@ -68,10 +68,10 @@ class card():
             gameDisplay.blit(suitImg, (x + w/4.5,y + h/7))
 
             suitCol = (0,0,0)
-            if self.suit == "h" or self.suit == "d":
+            if self.suit == "H" or self.suit == "D":
                 suitCol = (220,0,0)
             
-            img = font48.render(cardNumToStr[self.value], True, suitCol)
+            img = font48.render(cardNumToStr[int(self.value)], True, suitCol)
             if self.rotate:
                 gameDisplay.blit(img, (x + h/1.5,y + w/3))
             else:
@@ -86,9 +86,16 @@ class card():
 
     def setSuit(self, suit):
         self.suit = suit
+        print(suit)
 
     def setValue(self, value):
         self.value = value
+        print(value)
+
+    def setCard(self, card):
+
+        self.setSuit(card[0])
+        self.setValue(card[1:])
 
     def setX(self, x):
         self.x = x
@@ -266,50 +273,50 @@ allInButton = button(offset + 815,740 , 100,50, (240,0,0), "ALL IN", (0,0,0))
 userCard1 = card(530,600, "s", 1, False)
 userCard2 = card(630,600, "h", 1, False)
 
-op1Card1 = card(530,45, "b", 1, False)
-op1Card2 = card(630,45, "b", 1, False)
-op1BetButton = button(575,215 , 100,35, (255,255,255), "op1Bet", (0,0,0))
-op1ChipsButton = button(575,175 , 100,35, (255,255,255), "op1Chips", (0,0,0))
+op1Card1 = card(530,85, "b", 1, False)
+op1Card2 = card(630,85, "b", 1, False)
+op1BetButton = button(575,220 , 100,35, (255,255,255), "op1Bet", (0,0,0))
+op1ChipsButton = button(575,45 , 100,35, (255,255,255), "op1Chips", (0,0,0))
 op1Name = button(575,5 , 100,35, (255,255,255), "op1Name", (0,0,0))
 
 offset = -460
-op2Card1 = card(offset + 530,45, "b", 1, False)
-op2Card2 = card(offset + 630,45, "b", 1, False)
-op2BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op2Bet", (0,0,0))
-op2ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op2Chips", (0,0,0))
+op2Card1 = card(offset + 530,85, "b", 1, False)
+op2Card2 = card(offset + 630,85, "b", 1, False)
+op2BetButton = button(offset + 575,220 , 100,35, (255,255,255), "op2Bet", (0,0,0))
+op2ChipsButton = button(offset + 575,45 , 100,35, (255,255,255), "op2Chips", (0,0,0))
 op2Name = button(offset + 575,5 , 100,35, (255,255,255), "op2Name", (0,0,0))
 
 offset = 460
-op3Card1 = card(offset + 530,45, "b", 1, False)
-op3Card2 = card(offset + 630,45, "b", 1, False)
-op3BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op3Bet", (0,0,0))
-op3ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op3Chips", (0,0,0))
+op3Card1 = card(offset + 530,85, "b", 1, False)
+op3Card2 = card(offset + 630,85, "b", 1, False)
+op3BetButton = button(offset + 575,220 , 100,35, (255,255,255), "op3Bet", (0,0,0))
+op3ChipsButton = button(offset + 575,45 , 100,35, (255,255,255), "op3Chips", (0,0,0))
 op3Name = button(offset + 575,5 , 100,35, (255,255,255), "op3Name", (0,0,0))
 
 offset = -230
-op4Card1 = card(offset + 530,45, "b", 1, False)
-op4Card2 = card(offset + 630,45, "b", 1, False)
-op4BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op4Bet", (0,0,0))
-op4ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op4Chips", (0,0,0))
+op4Card1 = card(offset + 530,85, "b", 1, False)
+op4Card2 = card(offset + 630,85, "b", 1, False)
+op4BetButton = button(offset + 575,220 , 100,35, (255,255,255), "op4Bet", (0,0,0))
+op4ChipsButton = button(offset + 575,45 , 100,35, (255,255,255), "op4Chips", (0,0,0))
 op4Name = button(offset + 575,5 , 100,35, (255,255,255), "op4Name", (0,0,0))
 
 offset = 230
-op5Card1 = card(offset + 530,45, "b", 1, False)
-op5Card2 = card(offset + 630,45, "b", 1, False)
-op5BetButton = button(offset + 575,215 , 100,35, (255,255,255), "op5Bet", (0,0,0))
-op5ChipsButton = button(offset + 575,175 , 100,35, (255,255,255), "op5Chips", (0,0,0))
+op5Card1 = card(offset + 530,85, "b", 1, False)
+op5Card2 = card(offset + 630,85, "b", 1, False)
+op5BetButton = button(offset + 575,220 , 100,35, (255,255,255), "op5Bet", (0,0,0))
+op5ChipsButton = button(offset + 575,45 , 100,35, (255,255,255), "op5Chips", (0,0,0))
 op5Name = button(offset + 575,5 , 100,35, (255,255,255), "op5Name", (0,0,0))
 
 op6Card1 = card(5,350, "b", 1, True)
 op6Card2 = card(5,450, "b", 1, True)
-op6BetButton = button(140,450 , 100,35, (255,255,255), "op6Bet", (0,0,0))
-op6ChipsButton = button(140,410 , 100,35, (255,255,255), "op6Chips", (0,0,0))
+op6BetButton = button(140,430 , 100,35, (255,255,255), "op6Bet", (0,0,0))
+op6ChipsButton = button(20, 550 , 100,35, (255,255,255), "op6Chips", (0,0,0))
 op6Name = button(20,310 , 100,35, (255,255,255), "op6Name", (0,0,0))
 
 op7Card1 = card(1245-127,350, "b", 1, True)
 op7Card2 = card(1245-127,450, "b", 1, True)
-op7BetButton = button(1250-240,450 , 100,35, (255,255,255), "op7Bet", (0,0,0))
-op7ChipsButton = button(1250-240,410 , 100,35, (255,255,255), "op7Chips", (0,0,0))
+op7BetButton = button(1250-240,430 , 100,35, (255,255,255), "op7Bet", (0,0,0))
+op7ChipsButton = button(1250-120,550 , 100,35, (255,255,255), "op7Chips", (0,0,0))
 op7Name = button(1250-120,310 , 100,35, (255,255,255), "op7Name", (0,0,0))
 
 offset = 380
@@ -419,15 +426,18 @@ while not crashed:
             else:
                 p = i - userIndex
             buttons[p][2].setText(game.names[i])
-            buttons[p][1].setText("Bet:" + str(game.getChipCount(game.names[i])))
-            buttons[p][0].setText("Chips:" + str(game.getBet(game.names[i])))
+            buttons[p][1].setText("Chips:" + str(game.getChipCount(game.names[i])))
+            buttons[p][0].setText("Bet:" + str(game.getBet(game.names[i])))
 
         i = i + 1
+    
 
+    cards[1][0].setCard(game.cards[game.getPlayerIndex(uname)][0])
+    cards[1][1].setCard(game.cards[game.getPlayerIndex(uname)][1])
     i = 0
     while i < numPlayers+1:
         for card in cards[i]:
-            card.draw() 
+            card.draw()     
         i = i + 1
 
     delta = time.time() - t0

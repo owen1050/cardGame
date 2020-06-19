@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time, threading
+from random import random
 
 class texasHold():
     def __init__(self):
@@ -14,8 +15,8 @@ class texasHold():
         self.waitingOnPlayer = ""
         self.blind = 100
         self.readyAtPlayer = 0
-
-
+        self.wholeDeck = ["H1","H2","H3","H4","H5","H6","H7","H8","H9","H10","H11","H12","H13","S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12","C13"]
+        self.currentDeck = []
 
     def getPlayerIndex(self, name):
         if name in self.names:
@@ -25,7 +26,7 @@ class texasHold():
         if name in self.playersInCurrentHand:
             return self.playersInCurrentHand.index(name)
 
-    def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["0","0"]):
+    def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["b1","b1"]):
         if name in self.names:
             return "Name already taken"
         else:
@@ -83,6 +84,8 @@ class texasHold():
         for name in self.names:
             self.playersInCurrentHand.append(name)
 
+        self.dealCards()
+
         sb = self.dealer - 1
         bb = self.dealer - 2
         fb = self.dealer - 3
@@ -104,8 +107,16 @@ class texasHold():
         return "PICH:" + str(self.playersInCurrentHand)
 
     def dealCards(self):
-        
-
+        self.currentDeck = self.wholeDeck.copy()
+        tcards = []
+        for hands in self.cards:
+            th = []
+            r1 = int(random() * len(self.currentDeck))
+            th.append(self.currentDeck.pop(r1))
+            r2 = int(random() * len(self.currentDeck))
+            th.append(self.currentDeck.pop(r2))
+            tcards.append(th)
+        self.cards = tcards
 
     def advanceWaiting(self):
         ind = self.getPlayerIndexHand(self.waitingOnPlayer)
