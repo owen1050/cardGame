@@ -54,28 +54,30 @@ class card():
         pi = math.pi
         lineThickness = 2
         
-        if self.rotate:
-            c1 = pygame.draw.rect(surface = gameDisplay, color = (255,255,255),rect =  (x, y, h, w),width = lineThickness,  border_radius = 0)
-        else:
-            c1 = pygame.draw.rect(surface = gameDisplay, color = (255,255,255),rect =  (x, y, w, h),width = lineThickness,  border_radius = 0)
-        gameDisplay.fill((255,255,255), c1)
+        if self.suit != "e":
+            if self.rotate:
+                c1 = pygame.draw.rect(surface = gameDisplay, color = (255,255,255),rect =  (x, y, h, w),width = lineThickness,  border_radius = 0)
+            else:
+                c1 = pygame.draw.rect(surface = gameDisplay, color = (255,255,255),rect =  (x, y, w, h),width = lineThickness,  border_radius = 0)
+            gameDisplay.fill((255,255,255), c1)
         
         
         if self.suit != "b":
-            pth = str(self.suit) + ".jpg"
-            suitImg = pygame.image.load(pth)
+            if self.suit != "e":
+                pth = str(self.suit) + ".jpg"
+                suitImg = pygame.image.load(pth)
 
-            gameDisplay.blit(suitImg, (x + w/4.5,y + h/7))
+                gameDisplay.blit(suitImg, (x + w/4.5,y + h/7))
 
-            suitCol = (0,0,0)
-            if self.suit == "H" or self.suit == "D":
-                suitCol = (220,0,0)
-            
-            img = font48.render(cardNumToStr[int(self.value)], True, suitCol)
-            if self.rotate:
-                gameDisplay.blit(img, (x + h/1.5,y + w/3))
-            else:
-                gameDisplay.blit(img, (x + w/2.6,y + h - 35))
+                suitCol = (0,0,0)
+                if self.suit == "H" or self.suit == "D":
+                    suitCol = (220,0,0)
+                
+                img = font48.render(cardNumToStr[int(self.value)], True, suitCol)
+                if self.rotate:
+                    gameDisplay.blit(img, (x + h/1.5,y + w/3))
+                else:
+                    gameDisplay.blit(img, (x + w/2.6,y + h - 35))
         else:
             pth = "b.png"
             suitImg = pygame.image.load(pth)
@@ -86,14 +88,11 @@ class card():
 
     def setSuit(self, suit):
         self.suit = suit
-        print(suit)
 
     def setValue(self, value):
         self.value = value
-        print(value)
 
     def setCard(self, card):
-
         self.setSuit(card[0])
         self.setValue(card[1:])
 
@@ -133,6 +132,9 @@ class button():
     def setText(self, text):
         self.text = str(text)
 
+    def setColor(self, color):
+        self.color = color
+
 class texasHold():
     def __init__(self):
         self.names = []
@@ -141,7 +143,8 @@ class texasHold():
         self.cards = []
         self.playersInCurrentHand = []
         self.waitingOnPlayer = ""
-
+        self.callValue = 0
+        self.blind = 0
         self.numberOfPlayers = 0
 
     def getPlayerIndex(self, name):
@@ -257,6 +260,12 @@ class texasHold():
 
     def setWOP(self, name):
         self.waitingOnPlayer = name
+
+    def setCallValue(self, val):
+        self.callValue = val
+
+    def setBlind(self, val):
+        self.blind = val
 
 t0 = time.time()
 offset = 160
@@ -396,10 +405,35 @@ while not crashed:
         game.addToPICH(update[i0:i1])
 
     i0 = update.find("[", i1)+1
-    i1 = update.find("~", i0)
+    i1 = update.find("]", i0)
 
     game.setWOP(update[i0:i1])
-    
+
+    i0 = update.find("[", i1+1)+1
+    i1 = update.find("]", i0)
+
+    game.setCallValue(int(update[i0:i1]))
+
+    i0 = update.find("[", i1+1)+1
+    i1 = update.find("]", i0)
+
+    game.setBlind(int(update[i0:i1]))
+
+    i0 = update.find("[", i1+1)+2
+    i1 = update.find("]", i0)
+
+    tabCardIn = update[i0:i1]
+    cs = tabCardIn.split(',')
+    ts = []
+    if len(cs) > 2:
+        for c in cs:
+            i0 = c.find("'")+1
+            i1 = c.find("'", i0)
+            ts.append(c[i0:i1])
+
+        for i in range(len(ts)):
+            cards[0][i].setCard(ts[i])
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -409,6 +443,13 @@ while not crashed:
     
     i = 0
     p = 1
+
+    if game.waitingOnPlayer == uname:
+        buttons[0][10].setColor((255,50,50))
+
+    else:
+        buttons[0][10].setColor((255,255,255))
+
 
     userIndex = game.getPlayerIndex(uname)
 
@@ -446,23 +487,58 @@ while not crashed:
     mouse = pygame.mouse.get_pos() #mouse is a touple, 0 is x 1 is y
     click = pygame.mouse.get_pressed() #click is touple, 0 is left, 1 is middle, 2 is right click
     #print(mouse)
-    if prevClick == 1 and click[0] == 0:
-        for buttonLists in buttons:
-            for button in buttonLists:
-                if button.isClicked(mouse):
-                    print(button.text)
 
-                    if button.text == "-10x":
-                        buttons[0][6].setText(str(int(buttons[0][6].text) - 10))
-                    if button.text == "-1x":
-                        buttons[0][6].setText(str(int(buttons[0][6].text) - 1))
-                    if button.text == "+10x":
-                        buttons[0][6].setText(str(int(buttons[0][6].text) + 10))
-                    if button.text == "+1x":
-                        buttons[0][6].setText(str(int(buttons[0][6].text) + 1))
 
-                    if int(buttons[0][6].text) < 0:
-                        buttons[0][6].setText("0")
+    for buttonLists in buttons:
+        for button in buttonLists:
+            
+            if game.waitingOnPlayer == button.text:
+                button.setColor((255,50,50))
+            else:
+                button.setColor((255,255,255))
+
+            if prevClick == 1 and click[0] == 0 and button.isClicked(mouse):
+
+                if button.text == buttons[0][6].text:
+                    payload = "~!" + uname+ "!action:bet:"+ str(button.text)+":~"  #"~!kerry!action:bet:100:~"
+                    headers = {'Content-Length':str(len(payload))}
+
+                    r = requests.get(url, data = payload, headers = headers)
+
+                if button.text == "Call":
+                    buttons[0][6].setText(str(game.callValue))
+
+                if button.text == "-10x":
+                    buttons[0][6].setText(str(int(buttons[0][6].text) - 10*game.blind))
+                if button.text == "-1x":
+                    buttons[0][6].setText(str(int(buttons[0][6].text) - 1*game.blind))
+                if button.text == "+10x":
+                    buttons[0][6].setText(str(int(buttons[0][6].text) + 10*game.blind))
+                if button.text == "+1x":
+                    buttons[0][6].setText(str(int(buttons[0][6].text) + 1*game.blind))
+
+                if button.text == "ALL IN":
+                    chips = game.chipCounts[game.getPlayerIndex(uname)]
+                    buttons[0][6].setText(str(chips))
+
+                if button.text == "check" and game.callValue == 0:
+                    payload = "~!" + uname+ "!action:bet:"+ str(0)+":~"  #"~!kerry!action:bet:100:~"
+                    headers = {'Content-Length':str(len(payload))}
+
+                    r = requests.get(url, data = payload, headers = headers)
+
+                if button.text == "fold":
+                    payload = "~!" + uname+ "!action:fold:1:~"  #"~!kerry!action:bet:100:~"
+                    headers = {'Content-Length':str(len(payload))}
+
+                    r = requests.get(url, data = payload, headers = headers)
+
+                if int(buttons[0][6].text) < 0:
+                    buttons[0][6].setText("0")
+
+                if int(buttons[0][6].text) > game.chipCounts[game.getPlayerIndex(uname)]:
+                    buttons[0][6].setText(str(game.chipCounts[game.getPlayerIndex(uname)]))
+
     prevClick = click[0]
     
     pygame.display.update()
