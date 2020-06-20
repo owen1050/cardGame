@@ -113,7 +113,11 @@ class texasHold():
 
         self.readyAtPlayer = fb
         self.setBet(self.playersInCurrentHand[sb], self.blind//2)
+        self.chipCounts[sb] = self.chipCounts[sb] - self.blind//2
+
         self.setBet(self.playersInCurrentHand[bb], self.blind)
+        self.chipCounts[bb] = self.chipCounts[bb] - self.blind
+
         self.waitingOnPlayer = self.playersInCurrentHand[fb]
         
 
@@ -243,8 +247,10 @@ class server(BaseHTTPRequestHandler):
 
                 if actionStr == "bet":
                     if int(valueStr) == int(game.callValue) or int(valueStr) >= int(game.callValue) + int(game.blind):
-                        replyString = game.setBet(playerName, valueStr)
+                        
                         if playerName == game.waitingOnPlayer:
+                            game.setChipCounts(playerName, game.chipCounts[game.getPlayerIndex(playerName)] -(int(valueStr) - game.bets[game.getPlayerIndex(playerName)]))
+                            replyString = game.setBet(playerName, valueStr)
                             game.advanceWaiting()
 
                 if actionStr == "fold":
