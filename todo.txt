@@ -1,0 +1,5 @@
+1. in every update send name, if name not received in 5 seconds kick them - when player kicked who we are waiting on is fucked
+2. button to start hand
+3. sitting out button, way to not be put into playing 
+
+3. winning hand logic

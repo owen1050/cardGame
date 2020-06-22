@@ -20,6 +20,8 @@ class texasHold():
         self.callValue = 0
         self.tableCards = ["b1", "b1", "b1", "b1", "b1"]
         self.pot = 0
+        self.toRemove = []
+        self.sittingOut = []
 
 
     def getPlayerIndex(self, name):
@@ -30,7 +32,7 @@ class texasHold():
         if name in self.playersInCurrentHand:
             return self.playersInCurrentHand.index(name)
 
-    def newPlayer(self, name, chipCounts = 0, bet = 0, cards = ["b1","b1"]):
+    def newPlayer(self, name, chipCounts = 1000, bet = 0, cards = ["b1","b1"]):
         if name in self.names:
             return "Name already taken"
         else:
@@ -40,6 +42,15 @@ class texasHold():
             self.cards.append(cards)
             self.numberOfPlayers = self.numberOfPlayers + 1
             return "created player named:" + name
+
+    def removePlayer(self, name):
+        if name in self.names:
+            self.toRemove.append(name)
+            self.playerFolded(name)
+
+            return "removed "+ name
+        else:
+            return "player not in game"
 
     def setChipCounts(self, name, newCount):
         if name in self.names:
@@ -94,8 +105,20 @@ class texasHold():
     def startHand(self):
         self.playersInCurrentHand.clear()
         self.tableCards = ["b1", "b1", "b1", "b1", "b1"]
+
+        for player in self.toRemove:
+            pi = self.getPlayerIndex(player)
+            self.names.pop(pi)
+            self.chipCounts.pop(pi)
+            self.bets.pop(pi)
+            self.cards.pop(pi)
+            self.numberOfPlayers = self.numberOfPlayers - 1
+
         for name in self.names:
-            self.playersInCurrentHand.append(name)
+            if name in self.sittingOut:
+                pass
+            else:
+                self.playersInCurrentHand.append(name)
 
         self.dealCards()
 
@@ -270,6 +293,10 @@ class server(BaseHTTPRequestHandler):
 
                 if actionStr == "startHand":
                     replyString = game.startHand()
+
+                if actionStr == "remove":
+                    replyString = game.removePlayer(playerName)
+
 
             else:
                 if game.numberOfPlayers < 8:

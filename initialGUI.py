@@ -6,7 +6,7 @@ while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
 pw = "a" #input("password:")
 print(uname, pw)
 
-url = 'http://192.168.1.151:23667'
+url = 'http://100.35.205.75:23667'
 
 t0 = time.time()
 
@@ -220,6 +220,13 @@ class texasHold():
         else:
             return "player not in current hand"
 
+    def clearDatabase(self):
+        self.cards = []
+        self.bets = []
+        self.chipCounts = []
+        self.names = []
+        return 1
+
     def updateDatabase(self, update):
         i0 = 0
         i1 = update.find(":", i0)
@@ -384,6 +391,7 @@ game = texasHold()
 while not crashed:
     gameDisplay.fill((42,112,60))
 
+    game.clearDatabase()
     payload = "~update~"
     headers = {'Content-Length':str(len(payload))}
 

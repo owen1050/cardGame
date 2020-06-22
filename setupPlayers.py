@@ -6,7 +6,7 @@ url = 'http://192.168.1.151:23667'
 
 setup = True
 if setup:
-    names = ["owen", "josh"]#"jake"] #, "thomas", "kerry", "jason", "byron", "Amy"]
+    names = ["owen", "josh" ,"jake"] #, "thomas", "kerry", "jason", "byron", "Amy"]
     
     for i in range(len(names)) :
         payload = "~!" + names[i]+ "!~"
