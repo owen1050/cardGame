@@ -115,6 +115,8 @@ class texasHold():
                 self.atEnd = True
 
 
+            
+
             return "player " + name + " folded"
         else:
             return "player not in current hand"
@@ -149,7 +151,7 @@ class texasHold():
             pih = len(self.playersInCurrentHand)
             if sb < 0:
                 sb = pih + sb
-            if bb < 0:
+            while bb < 0:
                 bb = pih + bb
             while fb < 0:
                 fb = pih + fb
