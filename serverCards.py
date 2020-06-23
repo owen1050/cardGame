@@ -171,6 +171,7 @@ class texasHold():
             while self.readyAtPlayer < 0:
                 self.readyAtPlayer = self.readyAtPlayer + pih
 
+            self.pot = self.blind//2 + self.blind
             self.callValue = self.blind
             self.setBet(self.playersInCurrentHand[sb], self.blind//2)
             self.chipCounts[sb] = self.chipCounts[sb] - self.blind//2
