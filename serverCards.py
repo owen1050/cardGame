@@ -294,7 +294,7 @@ class server(BaseHTTPRequestHandler):
 
     def do_GET(self):
         global game
-        print(game.readyAtPlayer)
+        
         content_len = int(self.headers.get('Content-Length'))
         post_body = str(self.rfile.read(content_len))
         body = post_body[2:-1]
@@ -385,7 +385,7 @@ class server(BaseHTTPRequestHandler):
         #print("reply:" + replyString)
 
 
-port = 23671
+port = 23666
 
 game = texasHold()
 
