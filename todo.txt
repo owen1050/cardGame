@@ -9,3 +9,4 @@
 10. split pots
 11. change color of winner to blue
 12. didnt pull bet into chip count
+13. update bank with player coin values on exit

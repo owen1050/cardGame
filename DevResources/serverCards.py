@@ -397,7 +397,7 @@ class server(BaseHTTPRequestHandler):
         #print("reply:" + replyString)
 
 
-port = 23666
+port = 23662
 
 game = texasHold()
 
