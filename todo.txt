@@ -1,6 +1,12 @@
-1. folding and leaving is fucked, maybe redo it all
-2. in every update send name, if name not received in 5 seconds kick them - when player kicked who we are waiting on is fucked
-
+1. with 3+ players, when someone folds it doesnt shift the ready for next hand player
+2. when win hand, make pot and winning player same color
 3. sitting out button, way to not be put into playing 
+4. auth server to track dc's and login, stores historic chip counts and can remove players on DC
+5. hide "welcome to pygame"
 
 
+
+		
+play order 	43210
+ready on 3
+1 folds
