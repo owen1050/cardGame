@@ -1,3 +1,11 @@
+3. winner force show cards
+5. money 0
+6. make call/raise button and click current bet tyo see min
 4. auth server to track dc's and login, stores historic chip counts and can remove players on DC
 5. hide "welcome to pygame"
 3. sitting out button, way to not be put into playing 
+7. remove red from residual winner
+9. small blind big blind token
+10. split pots
+11. change color of winner to blue
+12. didnt pull bet into chip count
