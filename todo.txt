@@ -1,12 +1,3 @@
-1. with 3+ players, when someone folds it doesnt shift the ready for next hand player
-2. when win hand, make pot and winning player same color
-3. sitting out button, way to not be put into playing 
 4. auth server to track dc's and login, stores historic chip counts and can remove players on DC
 5. hide "welcome to pygame"
-
-
-
-		
-play order 	43210
-ready on 3
-1 folds
+3. sitting out button, way to not be put into playing 

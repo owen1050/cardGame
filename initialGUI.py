@@ -4,7 +4,7 @@ uname = "player"
 while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
     uname = input("Username:")
 pw = "a" #input("password:")
-print(uname, pw)
+print(uname)
 
 url = 'http://100.35.205.75:23666'
 
@@ -147,6 +147,8 @@ class texasHold():
         self.blind = 0
         self.numberOfPlayers = 0
         self.pot = 0
+        self.winner = ""
+        self.endOfHand = True
 
     def getPlayerIndex(self, name):
         if name in self.names:
@@ -220,6 +222,9 @@ class texasHold():
         else:
             return "player not in current hand"
 
+    def setWinner(self, name):
+        self.winner = name
+
     def clearDatabase(self):
         self.cards = []
         self.bets = []
@@ -277,6 +282,9 @@ class texasHold():
 
     def setPot(self, val):
         self.pot = val
+
+    def setEOH(self, val):
+        self.endOfHand = val
 
 t0 = time.time()
 offset = 160
@@ -453,6 +461,15 @@ while not crashed:
 
     game.setPot(int(update[i0:i1]))
 
+    i0 = update.find("WINNER[")
+    if(i0 > 0):
+        i1 = update.find("]", i0)
+        game.setWinner(update[i0+7: i1])
+        game.setEOH(True)
+    else:
+        game.winner == ""
+        game.setEOH(False)
+
     buttons[0][9].setText("Pot:" + str(game.pot))
 
     for event in pygame.event.get():
@@ -487,6 +504,7 @@ while not crashed:
             else:
                 p = i - userIndex
             buttons[p][2].setText(game.names[i])
+
             buttons[p][1].setText("Chips:" + str(game.getChipCount(game.names[i])))
             buttons[p][0].setText("Bet:" + str(game.getBet(game.names[i])))
 
@@ -526,6 +544,13 @@ while not crashed:
                 button.setColor((255,50,50))
             else:
                 button.setColor((255,255,255))
+
+            if game.endOfHand and button.text.find("Pot:") >=0 or game.winner == button.text:
+               
+                if game.winner == uname:
+                    button.setColor((0,255,0))
+                else:
+                    button.setColor((255,0,0))
 
             if prevClick == 1 and click[0] == 0 and button.isClicked(mouse):
 

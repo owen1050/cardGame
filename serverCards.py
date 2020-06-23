@@ -24,6 +24,7 @@ class texasHold():
         self.toRemove = []
         self.sittingOut = []
         self.atEnd = True
+        self.winner = ""
 
 
     def getPlayerIndex(self, name):
@@ -95,6 +96,7 @@ class texasHold():
 
     def playerFolded(self, name):
         if name in self.playersInCurrentHand:
+            oldIndex = self.getPlayerIndexHand(name)
             self.playersInCurrentHand.remove(name)
             print(self.playersInCurrentHand)
 
@@ -113,7 +115,16 @@ class texasHold():
                 self.chipCounts[i] = self.chipCounts[i] + self.pot + tot
 
                 self.atEnd = True
+                self.winner = self.playersInCurrentHand[0]
 
+
+            else:
+                if(self.readyAtPlayer < oldIndex):
+                    pass
+                else:
+                    self.readyAtPlayer = self.readyAtPlayer - 1
+                    if(self.readyAtPlayer < 0):
+                        self.readyAtPlayer = self.readyAtPlayer + len(self.playersInCurrentHand)
 
             
 
@@ -156,12 +167,9 @@ class texasHold():
             while fb < 0:
                 fb = pih + fb
 
-            print(self.dealer, sb, bb, fb)
-
             self.readyAtPlayer = bb - 1
             while self.readyAtPlayer < 0:
                 self.readyAtPlayer = self.readyAtPlayer + pih
-            print(self.readyAtPlayer)
 
             self.callValue = self.blind
             self.setBet(self.playersInCurrentHand[sb], self.blind//2)
@@ -258,9 +266,8 @@ class texasHold():
         self.chipCounts[i] = self.chipCounts[i] + self.pot
 
         self.atEnd = True
-
-        #t=threading.Thread(target = self.startHandDelay)
-        #t.start()
+        self.winner = winningPlayer
+        self.waitingOnPlayer = ""
 
     def startHandDelay(self):
         time.sleep(10)
@@ -317,6 +324,8 @@ class server(BaseHTTPRequestHandler):
             replyString = replyString + "BLIND[" + str(game.blind)+"]"
             replyString = replyString + "TABLE[" + str(game.tableCards)+"]"
             replyString = replyString + "POT[" + str(game.pot)+"]"
+            if(game.atEnd):
+                replyString = replyString + "WINNER["+ game.winner + "]"
 
 
             replyString = replyString + "~"
