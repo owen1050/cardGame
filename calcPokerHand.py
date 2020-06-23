@@ -35,7 +35,6 @@ def isStraight(handIn):
 
     #no low ace straight support
     vals.sort(reverse = True)
-    print(vals)
     if vals == [14, 5, 4, 3, 2]:
         return True
     for i in vals:
@@ -250,44 +249,48 @@ def tiebreakerCalc(hand):
 
 def calcSingleVal(hand):
     if(isRoyalFlush(hand)):
-        return 6000
+        return 6000, "Royal Flush"
 
     if(isStraightFlush(hand)):
-        return 5000 + valueOfLow1(hand)
+        return 5000 + valueOfLow1(hand), "straight Flush"
 
     if(isNOfAKind(hand, 4)):
         v4, v1 = valueOf4OfAKind(hand)
-        return 4000 + v4 + v1/20
+        return 4000 + v4 + v1/20, "Four of a kind"
 
     if(isFullHouse(hand)):
         v3, v2 = valueOf4OfAKind(hand)
-        return 3000+  v3 + v2/20
+        return 3000+  v3 + v2/20, "Full house"
 
     if(isFlush(hand)):
-        return 2000 + tiebreakerCalc(hand)
+        return 2000 + tiebreakerCalc(hand), "Flush"
 
     if(isStraight(hand)):
-        return 1000 + valueOfLow1(hand)
+        return 1000 + valueOfLow1(hand), "Straight"
 
     if(isNOfAKind(hand, 3)):
-        return 750 + valueOf3(hand)
+        return 750 + valueOf3(hand), "Three of a kind"
 
     if(isTwoPair(hand)):
-        return 100 + valueOf2Pair(hand)
+        return 100 + valueOf2Pair(hand), "Two pair"
 
     if(isNOfAKind(hand, 2)):
-        return 14 + valueOf2(hand)
+        return 14 + valueOf2(hand), "Pair"
 
-    return tiebreakerCalc(hand)
+    return tiebreakerCalc(hand), "High Card"
 
 def calcValue(hand):
     hands = combinations(hand, 5)
 
     maxScore = 0
+    name = ""
+    tname = ""
     for h2 in hands:
         h = list(h2)
-        score = calcSingleVal(h)
+        score, tname = calcSingleVal(h)
         if score > maxScore:
             maxScore = score
-    return maxScore
+            name = tname
+    return maxScore, tname
+
 

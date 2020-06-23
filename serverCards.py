@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import time, threading
 from random import random
+from calcPokerHand import calcValue
 
 class texasHold():
     def __init__(self):
@@ -22,6 +23,7 @@ class texasHold():
         self.pot = 0
         self.toRemove = []
         self.sittingOut = []
+        self.atEnd = True
 
 
     def getPlayerIndex(self, name):
@@ -98,53 +100,79 @@ class texasHold():
 
             self.setCards(name, ("e1","e1"))
 
+            if(len(self.playersInCurrentHand) < 2):
+                self.dealer = self.dealer - 1
+                if(self.dealer < 0):
+                    self.dealer = self.numberOfPlayers-1
+
+                i = self.getPlayerIndex(self.playersInCurrentHand[0])
+                tot = 0
+                for b in self.bets:
+                    tot = tot + int(b)
+
+                self.chipCounts[i] = self.chipCounts[i] + self.pot + tot
+
+                self.atEnd = True
+
+
             return "player " + name + " folded"
         else:
             return "player not in current hand"
 
     def startHand(self):
-        self.playersInCurrentHand.clear()
-        self.tableCards = ["b1", "b1", "b1", "b1", "b1"]
 
-        for player in self.toRemove:
-            pi = self.getPlayerIndex(player)
-            self.names.pop(pi)
-            self.chipCounts.pop(pi)
-            self.bets.pop(pi)
-            self.cards.pop(pi)
-            self.numberOfPlayers = self.numberOfPlayers - 1
+        if(self.numberOfPlayers > 1):
+            self.atEnd = False
+            self.playersInCurrentHand.clear()
+            self.tableCards = ["b1", "b1", "b1", "b1", "b1"]
 
-        for name in self.names:
-            if name in self.sittingOut:
-                pass
-            else:
-                self.playersInCurrentHand.append(name)
+            for player in self.toRemove:
+                pi = self.getPlayerIndex(player)
+                self.names.pop(pi)
+                self.chipCounts.pop(pi)
+                self.bets.pop(pi)
+                self.cards.pop(pi)
+                self.numberOfPlayers = self.numberOfPlayers - 1
 
-        self.dealCards()
+            for name in self.names:
+                if name in self.sittingOut:
+                    pass
+                else:
+                    self.playersInCurrentHand.append(name)
 
-        sb = self.dealer - 1
-        bb = self.dealer - 2
-        fb = self.dealer - 3
-        
-        pih = len(self.playersInCurrentHand)
-        if sb < 0:
-            sb = pih + sb
-        if bb < 0:
-            bb = pih + bb
-        if fb < 0:
-            fb = pih + fb
+            self.dealCards()
 
-        self.readyAtPlayer = fb
-        self.setBet(self.playersInCurrentHand[sb], self.blind//2)
-        self.chipCounts[sb] = self.chipCounts[sb] - self.blind//2
+            sb = self.dealer - 1
+            bb = self.dealer - 2
+            fb = self.dealer - 3
+            
+            pih = len(self.playersInCurrentHand)
+            if sb < 0:
+                sb = pih + sb
+            if bb < 0:
+                bb = pih + bb
+            while fb < 0:
+                fb = pih + fb
 
-        self.setBet(self.playersInCurrentHand[bb], self.blind)
-        self.chipCounts[bb] = self.chipCounts[bb] - self.blind
+            print(self.dealer, sb, bb, fb)
 
-        self.waitingOnPlayer = self.playersInCurrentHand[fb]
-        
+            self.readyAtPlayer = bb - 1
+            while self.readyAtPlayer < 0:
+                self.readyAtPlayer = self.readyAtPlayer + pih
+            print(self.readyAtPlayer)
 
-        return "PICH:" + str(self.playersInCurrentHand)
+            self.callValue = self.blind
+            self.setBet(self.playersInCurrentHand[sb], self.blind//2)
+            self.chipCounts[sb] = self.chipCounts[sb] - self.blind//2
+
+            self.setBet(self.playersInCurrentHand[bb], self.blind)
+            self.chipCounts[bb] = self.chipCounts[bb] - self.blind
+
+            self.waitingOnPlayer = self.playersInCurrentHand[fb]
+            
+
+            return "PICH:" + str(self.playersInCurrentHand)
+        return "not enough players to start game"
 
     def dealCards(self):
         self.currentDeck = self.wholeDeck.copy()
@@ -197,6 +225,43 @@ class texasHold():
 
     def evalWinnerAndReset(self):
         #need to eval winner and give chips at some point
+        hands = {}
+        for p in self.playersInCurrentHand:
+            i = self.getPlayerIndex(p)
+            hands[p] = self.cards[i]
+        print(hands)
+        for h in hands:
+            for t in self.tableCards:
+                
+                hands[h].append(t)
+        print(hands)
+        maxScore = 0
+        winningPlayer = ""
+        winningHand = ""
+        for h in hands:
+            score, winningHand = calcValue(hands[h])
+            if score > maxScore:
+                maxScore = score
+                winningPlayer = h
+
+            print(h, score)
+
+        print(maxScore)
+
+        self.dealer = self.dealer - 1
+        if(self.dealer < 0):
+            self.dealer = self.numberOfPlayers-1
+
+        i = self.getPlayerIndex(winningPlayer)
+        self.chipCounts[i] = self.chipCounts[i] + self.pot
+
+        self.atEnd = True
+
+        #t=threading.Thread(target = self.startHandDelay)
+        #t.start()
+
+    def startHandDelay(self):
+        time.sleep(10)
         self.startHand()
 
 
@@ -207,7 +272,10 @@ class texasHold():
         else:
             self.waitingOnPlayer = self.playersInCurrentHand[len(self.playersInCurrentHand) - 1]
 
+
         ind = self.getPlayerIndexHand(self.waitingOnPlayer)
+        print(self.waitingOnPlayer, ind, self.readyAtPlayer)
+
         if ind == self.readyAtPlayer:
             if self.tableCards[0] == "b1":
                 self.flop()
@@ -226,10 +294,11 @@ class server(BaseHTTPRequestHandler):
 
     def do_GET(self):
         global game
+        print(game.readyAtPlayer)
         content_len = int(self.headers.get('Content-Length'))
         post_body = str(self.rfile.read(content_len))
         body = post_body[2:-1]
-        print("body:" + body)
+        #print("body:" + body)
         replyString = ""
         
         if body.find("~update") >= 0:
@@ -268,7 +337,7 @@ class server(BaseHTTPRequestHandler):
                 valueStr= body[i0:i1]
                 print(valueStr)
 
-                if actionStr == "bet":
+                if actionStr == "bet" and game.atEnd == False:
                     if int(valueStr) == int(game.callValue) or int(valueStr) >= int(game.callValue) + int(game.blind):
                         
                         if playerName == game.waitingOnPlayer:
@@ -292,7 +361,8 @@ class server(BaseHTTPRequestHandler):
                     replyString = game.setCards(playerName, (card1, card2))
 
                 if actionStr == "startHand":
-                    replyString = game.startHand()
+                    if(game.atEnd):
+                        replyString = game.startHand()
 
                 if actionStr == "remove":
                     replyString = game.removePlayer(playerName)
@@ -312,9 +382,10 @@ class server(BaseHTTPRequestHandler):
         self.send_header('Content-Length',len(replyString))
         self.end_headers()
         self.wfile.write(bytes(replyString, "utf-8"))
-        print("reply:" + replyString)
+        #print("reply:" + replyString)
 
-port = 23667
+
+port = 23671
 
 game = texasHold()
 

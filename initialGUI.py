@@ -6,7 +6,7 @@ while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
 pw = "a" #input("password:")
 print(uname, pw)
 
-url = 'http://100.35.205.75:23667'
+url = 'http://192.168.1.229:23671'
 
 t0 = time.time()
 
@@ -18,7 +18,7 @@ WIDTH = 1250
 HEIGHT = 800
 
 gameDisplay = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("8 Player Texas Hold\'em")
+pygame.display.set_caption("8 Player Texas Hold\'em. Logged in as: " + uname)
 
 font48 = pygame.font.Font("arial.ttf", 30)
 font30 = pygame.font.Font("arial.ttf", 20)
@@ -352,6 +352,8 @@ potButton = button(575,315 , 100,35, (255,255,255), "TotalPot", (0,0,0))
 playerBet = button(575,550 , 100,35, (255,255,255), "PlayerBet", (0,0,0))
 playerChips = button(750,675 , 120,35, (255,255,255), "Chips", (0,0,0))
 
+startButton = button(5,5 , 100,35, (255,255,255), "Start Hand", (0,0,0))
+
 tabCards = [tabCard1, tabCard2, tabCard3, tabCard4, tabCard5]
 
 userCards = [userCard1, userCard2]
@@ -365,7 +367,7 @@ op1Cards = [op7Card1, op7Card2]
 
 cards = [tabCards, userCards, op1Cards, op2Cards, op3Cards, op4Cards, op5Cards, op6Cards, op7Cards]
 
-interfaceButtons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton,potButton, playerBet, playerChips]
+interfaceButtons = [checkButton, foldButton, sub1Bet, sub10Bet, add1Bet, add10Bet, betAmount, allInButton, callButton,potButton, playerBet, playerChips, startButton]
 
 op4Buttons = [op1BetButton, op1ChipsButton, op1Name]
 op6Buttons = [op2BetButton, op2ChipsButton, op2Name]
@@ -549,6 +551,11 @@ while not crashed:
                     chips = game.chipCounts[game.getPlayerIndex(uname)]
                     buttons[0][6].setText(str(chips))
 
+                if button.text == "Start Hand":
+                    payload = "~!" + uname+ "!action:startHand:"+ str(1)+":~"  #"~!kerry!action:bet:100:~"
+                    headers = {'Content-Length':str(len(payload))}
+
+                    r = requests.get(url, data = payload, headers = headers)
                 if button.text == "check" and game.callValue == 0:
                     payload = "~!" + uname+ "!action:bet:"+ str(0)+":~"  #"~!kerry!action:bet:100:~"
                     headers = {'Content-Length':str(len(payload))}
