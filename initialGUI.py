@@ -6,7 +6,7 @@ while uname.find("player") >= 0 or uname.find("PICH") >= 0 :
 pw = "a" #input("password:")
 print(uname, pw)
 
-url = 'http://192.168.1.229:23671'
+url = 'http://100.35.205.75:23666'
 
 t0 = time.time()
 
